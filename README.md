@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🇲🇦 GEDEC — Gestion Électronique des Demandes Citoyennes
+# GEDEC — Gestion Électronique des Demandes Citoyennes
 ### Plateforme IA multilingue de routage, modération et traitement des demandes citoyennes
 
 
