@@ -171,4 +171,4 @@ def get_best_clause(code_direction: str, texte_demande: str,
     # Repli mots-clés si les embeddings sont indisponibles
     scores_mc = [(_score_mots_cles(texte_demande, c.get("texte_clause", "")), c) for c in clauses]
     scores_mc.sort(key=lambda x: x[0], reverse=True)
-    return [c for _, c in scores_mc[:top_k]]
+    return [c for _, c in scores_mc[:top_k_intermediaire]]

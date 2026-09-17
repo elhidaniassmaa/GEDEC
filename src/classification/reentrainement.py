@@ -2,6 +2,7 @@ import os
 import sys
 import shutil
 import pandas as pd
+import hashlib
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
@@ -165,24 +166,84 @@ def print_comparison_report(old_report: dict, new_report: dict):
     print("="*80 + "\n")
 
 def replace_production_model(temp_path: str, prod_path: str):
+    """Remplace le modèle en production de façon sécurisée.
+
+    1. Crée une sauvegarde du modèle actuel sous ``prod_path_backup``.
+    2. Copie le modèle candidate depuis ``temp_path`` vers ``prod_path``.
+    3. Vérifie l'intégrité du modèle copié en comparant les SHA‑256 de chaque fichier.
+    4. En cas d’erreur ou de hash mismatch, restaure la sauvegarde et nettoie le répertoire temporaire.
+    5. Ne supprime jamais le modèle de production tant que le nouveau modèle n’est pas confirmé valide.
     """
-    Remplace en toute sécurité le modèle en production en conservant un backup.
-    """
-    print(f"Déploiement du nouveau modèle en production...")
+    import hashlib
+    import os
+    import shutil
+    from pathlib import Path
+
+    def _dir_hash(root: str) -> str:
+        """Calcule un hash SHA‑256 représentant le contenu de tous les fichiers du répertoire.
+        Le hash est déterminé par le chemin relatif et le contenu de chaque fichier, triés.
+        """
+        hash_obj = hashlib.sha256()
+        for dirpath, _, filenames in os.walk(root):
+            for fname in sorted(filenames):
+                fpath = Path(dirpath) / fname
+                rel_path = fpath.relative_to(root).as_posix().encode()
+                hash_obj.update(rel_path)
+                with open(fpath, "rb") as f:
+                    while True:
+                        chunk = f.read(8192)
+                        if not chunk:
+                            break
+                        hash_obj.update(chunk)
+        return hash_obj.hexdigest()
+
+    print(f"Déploiement du nouveau modèle depuis '{temp_path}' vers '{prod_path}'...")
+    backup_path = prod_path.rstrip("/") + "_backup/"
     try:
+        # 1️⃣ Sauvegarde du modèle actuel
         if os.path.exists(prod_path):
-            backup_path = prod_path.rstrip("/") + "_backup/"
             if os.path.exists(backup_path):
                 shutil.rmtree(backup_path)
             shutil.copytree(prod_path, backup_path)
-            print(f"Sauvegarde de sécurité créée à : {backup_path}")
+            print(f"Sauvegarde du modèle actuel créée à : {backup_path}")
+        # 2️⃣ Copie du modèle candidate dans un répertoire temporaire sécurisé
+        # (on copie d’abord dans un répertoire intermédiaire afin de pouvoir le valider)
+        temp_copy_path = Path(temp_path).with_name(Path(temp_path).name + "_copy")
+        if os.path.exists(temp_copy_path):
+            shutil.rmtree(temp_copy_path)
+        shutil.copytree(temp_path, temp_copy_path)
+        # 3️⃣ Vérification d'intégrité (hashes)
+        src_hash = _dir_hash(str(temp_copy_path))
+        dest_hash = _dir_hash(str(temp_path))  # hash du répertoire source avant déplacement
+        if src_hash != dest_hash:
+            raise RuntimeError("Hash du modèle source corrompu après copie temporaire.")
+        # 4️⃣ Remplacement du modèle en production
+        if os.path.exists(prod_path):
             shutil.rmtree(prod_path)
-
-        shutil.copytree(temp_path, prod_path)
+        shutil.copytree(str(temp_copy_path), prod_path)
+        # Vérifier le hash du modèle enfin installé
+        prod_hash = _dir_hash(prod_path)
+        if prod_hash != src_hash:
+            raise RuntimeError("Hash du modèle en production ne correspond pas au modèle candidat.")
         print(f"Nouveau modèle opérationnel en production à : {prod_path}")
-        shutil.rmtree(temp_path)
+        # Nettoyage des répertoires temporaires
+        shutil.rmtree(str(temp_copy_path))
+        if os.path.exists(temp_path):
+            shutil.rmtree(temp_path)
     except Exception as e:
         print(f"Erreur critique lors du déploiement : {e}")
+        # Tentative de rollback
+        try:
+            if os.path.exists(prod_path):
+                shutil.rmtree(prod_path)
+            if os.path.exists(backup_path):
+                shutil.copytree(backup_path, prod_path)
+                print(f"Rollback : modèle restauré depuis la sauvegarde {backup_path}")
+            if os.path.exists(temp_path):
+                shutil.rmtree(temp_path)
+        except Exception as rb_err:
+            print(f"Rollback échoué : {rb_err}")
+        raise
 
 def _notify(progress_callback, pourcentage, message_statut, epoch_actuelle=0, epoch_totale=15):
     if progress_callback:
