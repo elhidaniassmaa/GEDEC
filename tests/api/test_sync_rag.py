@@ -38,7 +38,10 @@ class TestSyncRag(unittest.TestCase):
     def test_rattacher_articles_heritage(self):
         """Vérifie que la fonction de rattachement s'exécute sans erreur."""
         result = rattacher_articles_heritage()
-        self.assertIsInstance(result, int)
+        self.assertIsInstance(result, dict)
+        self.assertIn("rattaches", result)
+        self.assertIn("deja_lies", result)
+
 
 
 if __name__ == "__main__":

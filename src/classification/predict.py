@@ -28,11 +28,36 @@ def get_classifier():
                 )
                 
         # Chargement
-        _classifier_tokenizer = AutoTokenizer.from_pretrained(actual_path)
-        _classifier_model = AutoModelForSequenceClassification.from_pretrained(actual_path)
+        try:
+            _classifier_tokenizer = AutoTokenizer.from_pretrained(actual_path)
+            _classifier_model = AutoModelForSequenceClassification.from_pretrained(actual_path)
+        except Exception as e:
+            # Si les poids affinés ne sont pas présents localement (ex: archive ZIP sans .safetensors),
+            # charger xlm-roberta-base avec la configuration des labels
+            import logging
+            logging.getLogger("classification.predict").warning(
+                f"Poids affinés introuvables dans {actual_path} ({e}). "
+                "Chargement du modèle de base 'xlm-roberta-base' avec la cartographie des directions."
+            )
+            base_model_name = os.environ.get("BASE_MODEL_NAME", "xlm-roberta-base")
+            _classifier_tokenizer = AutoTokenizer.from_pretrained(base_model_name)
+            _classifier_model = AutoModelForSequenceClassification.from_pretrained(
+                base_model_name,
+                num_labels=8,
+                id2label={
+                    0: "DSI", 1: "DSPCT", 2: "DAAJJ", 3: "DMM",
+                    4: "DTR", 5: "DJAC", 6: "Cabinet du Ministère", 7: "Non concerné"
+                },
+                label2id={
+                    "DSI": 0, "DSPCT": 1, "DAAJJ": 2, "DMM": 3,
+                    "DTR": 4, "DJAC": 5, "Cabinet du Ministère": 6, "Non concerné": 7
+                }
+            )
+
         _classifier_model.eval()
         
     return _classifier_model, _classifier_tokenizer
+
 
 def predire_direction(texte: str, seuil_confiance: float = 0.6) -> dict:
     """
