@@ -172,3 +172,61 @@ def get_best_clause(code_direction: str, texte_demande: str,
     scores_mc = [(_score_mots_cles(texte_demande, c.get("texte_clause", "")), c) for c in clauses]
     scores_mc.sort(key=lambda x: x[0], reverse=True)
     return [c for _, c in scores_mc[:top_k_intermediaire]]
+
+
+DIRECTIONS_NOMS = {
+    "DTR": "Direction des Transports Routiers",
+    "DJAC": "Direction de l'Aviation Civile",
+    "DMM": "Direction de la Marine Marchande",
+    "DSPCT": "Direction de la Stratégie, des Programmes et de la Coordination des Transports",
+    "DAAJJ": "Direction des Affaires Administratives, Juridiques et Générales",
+    "DSI": "Direction des Systèmes d'Information",
+    "CABINET DU MINISTÈRE": "Cabinet du Ministère",
+}
+
+
+def get_articles(code_direction: str) -> list:
+    """
+    Retourne la liste des articles associés à une direction en regroupant leurs clauses (tirets).
+    Chaque élément est un dictionnaire avec 'numero_article', 'texte_article', et 'code_direction'.
+    """
+    if not code_direction:
+        return []
+
+    clauses = get_clauses(code_direction)
+    if not clauses:
+        return []
+
+    code_upper = code_direction.strip().upper()
+    nom_dir = DIRECTIONS_NOMS.get(code_upper, code_direction.strip())
+
+    articles_dict = {}
+    for c in clauses:
+        num = str(c.get("numero_article", "")).strip()
+        if num.startswith("Hors"):
+            num_clean = "Hors décret"
+        else:
+            num_clean = num
+
+        if num_clean not in articles_dict:
+            articles_dict[num_clean] = {
+                "numero_article": num_clean,
+                "code_direction": c.get("code_direction", code_direction),
+                "textes": []
+            }
+        articles_dict[num_clean]["textes"].append(c.get("texte_clause", ""))
+
+    result = []
+    for num_clean, item in articles_dict.items():
+        texte_comb = " ".join(item["textes"])
+        if nom_dir and nom_dir not in texte_comb:
+            texte_article = f"{nom_dir} : {texte_comb}"
+        else:
+            texte_article = texte_comb
+
+        result.append({
+            "numero_article": item["numero_article"],
+            "code_direction": item["code_direction"],
+            "texte_article": texte_article
+        })
+    return result

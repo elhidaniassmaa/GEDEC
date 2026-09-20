@@ -15,20 +15,25 @@ textes_test = [
     ("Arabe insultant clair", "انتم حمير وكذابون في هذه الإدارة"),
 ]
 
-print("="*70)
-print("TEST : verifier_contenu (modèle + mots-clés combinés)")
-print("="*70)
-for nom, texte in textes_test:
-    resultat = verifier_contenu(texte)
-    statut = "✅ VALIDE" if resultat["contenu_valide"] else "🚫 SIGNALÉ"
-    print(f"\n[{nom}]")
-    print(f"Texte : {texte[:60]}...")
-    print(f"Résultat : {statut} | score={resultat['score_confiance']:.2f} | méthode={resultat['methode']}")
+def run_test():
+    print("="*70)
+    print("TEST : verifier_contenu (modèle + mots-clés combinés)")
+    print("="*70)
+    for nom, texte in textes_test:
+        resultat = verifier_contenu(texte)
+        statut = "✅ VALIDE" if resultat["contenu_valide"] else "🚫 SIGNALÉ"
+        print(f"\n[{nom}]")
+        print(f"Texte : {texte[:60]}...")
+        print(f"Résultat : {statut} | score={resultat['score_confiance']:.2f} | méthode={resultat['methode']}")
 
-print("\n" + "="*70)
-print("TEST : check_mots_cles seul (pour vérifier la liste enrichie isolément)")
-print("="*70)
-for nom, texte in textes_test:
-    resultat = check_mots_cles(texte)
-    statut = "✅ VALIDE" if resultat["contenu_valide"] else "🚫 SIGNALÉ"
-    print(f"[{nom}] -> {statut}")
+    print("\n" + "="*70)
+    print("TEST : check_mots_cles seul (pour vérifier la liste enrichie isolément)")
+    print("="*70)
+    for nom, texte in textes_test:
+        resultat = check_mots_cles(texte)
+        statut = "✅ VALIDE" if resultat["contenu_valide"] else "🚫 SIGNALÉ"
+        print(f"[{nom}] -> {statut}")
+
+
+if __name__ == "__main__":
+    run_test()

@@ -31,7 +31,7 @@ def generer_argumentaire(direction: str, texte_demande: str) -> str:
 
     articles_citations = []
     for num, textes in par_article.items():
-        if num.lower() == "hors décret 2.21.968":
+        if num.lower().startswith("hors"):
             articles_citations.append(f"le rôle du Cabinet du Ministère, qui prévoit que : \"{' '.join(textes)}\"")
         elif len(textes) == 1:
             articles_citations.append(f"l'article {num} du décret n° 2.21.968 qui dispose que : \"{textes[0]}\"")
@@ -40,7 +40,18 @@ def generer_argumentaire(direction: str, texte_demande: str) -> str:
             articles_citations.append(f"l'article {num} du décret n° 2.21.968, qui dispose notamment que : \"{texte_complet}\"")
 
     citations_text = " et ".join(articles_citations)
-    fallback_message = f"La direction {direction} est désignée compétente pour cette demande en vertu de {citations_text}."
+    
+    try:
+        from argumentaire.reglementation import DIRECTIONS_NOMS
+        nom_dir = DIRECTIONS_NOMS.get(direction.strip().upper(), direction)
+    except Exception:
+        nom_dir = direction
+
+    if nom_dir != direction and nom_dir not in citations_text:
+        fallback_message = f"La {nom_dir} ({direction}) est désignée compétente pour cette demande en vertu de {citations_text}."
+    else:
+        fallback_message = f"La direction {direction} est désignée compétente pour cette demande en vertu de {citations_text}."
+
 
     # Construction du prompt pour le LLM local (génération de texte uniquement,
     # pas de sélection de tiret -- cette dernière est faite par get_best_clause)

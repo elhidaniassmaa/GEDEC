@@ -47,7 +47,7 @@ class TestImportDeduplicationIntegration(unittest.TestCase):
             cls.conn.commit()
 
     def test_canonical_db_path(self):
-        expected = os.path.abspath(os.path.join(os.path.dirname(__file__), "gedec.db"))
+        expected = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../backend/gedec.db"))
         self.assertEqual(os.path.normpath(DATABASE_PATH), os.path.normpath(expected))
 
     def test_fingerprint_in_existing_set(self):

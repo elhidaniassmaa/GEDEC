@@ -18,13 +18,18 @@ cas_test = [
     ("DAAJJ", "عندي مشكل ديال التقاعد ديالي، الملف ديالي متوقف عند المصالح الإدارية."),
 ]
 
-for direction, message in cas_test:
-    print(f"\n{'='*80}")
-    print(f"--- Direction : {direction} ---")
-    print(f"Message : {message[:70]}")
+def run_test():
+    for direction, message in cas_test:
+        print(f"\n{'='*80}")
+        print(f"--- Direction : {direction} ---")
+        print(f"Message : {message[:70]}")
 
-    # Affichage des scores de diagnostic (verbose=True) avant de générer l'argumentaire
-    _ = get_best_clause(direction, message, verbose=True)
+        # Affichage des scores de diagnostic (verbose=True) avant de générer l'argumentaire
+        _ = get_best_clause(direction, message, verbose=True)
 
-    argumentaire = generer_argumentaire(direction, message)
-    print(f"Argumentaire final :\n{argumentaire}\n")
+        argumentaire = generer_argumentaire(direction, message)
+        print(f"Argumentaire final :\n{argumentaire}\n")
+
+
+if __name__ == "__main__":
+    run_test()
