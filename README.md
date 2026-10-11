@@ -233,7 +233,7 @@ Le projet utilise des variables d'environnement pour configurer les accès et le
 
 ---
 
-## 👥 Comptes de démonstration
+## Comptes de démonstration
 
 La base est initialisée avec des comptes de test opérationnels (voir `backend/database.py` pour la liste exacte) :
 
@@ -244,11 +244,11 @@ La base est initialisée avec des comptes de test opérationnels (voir `backend/
 | Responsable (DSPCT) | `s.mansouri@transport.gov.ma` | `password123` | Stratégie & Coordination |
 | Responsable (DJAC) | `y.drissi@transport.gov.ma` | `password123` | Aviation Civile |
 
-> ⚠️ Mots de passe de démonstration volontairement simples (non hachés dans ce prototype de stage — à sécuriser avant toute mise en production institutionnelle).
+>  Mots de passe de démonstration volontairement simples (non hachés dans ce prototype de stage — à sécuriser avant toute mise en production institutionnelle).
 
 ---
 
-## 🧪 Tests
+## Tests
 
 ### Exécuter l'ensemble de la suite de tests (54 tests automatisés)
 ```bash
