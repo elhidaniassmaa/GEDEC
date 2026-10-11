@@ -45,9 +45,12 @@ class TestReglementation(unittest.TestCase):
         self.assertEqual(len(get_articles("INEXISTANTE")), 0)
         self.assertEqual(len(get_articles(None)), 0)
 
+from unittest.mock import patch
+
 class TestGenererArgumentaire(unittest.TestCase):
     
-    def test_generer_argumentaire_dtr_fallback(self):
+    @patch('requests.post', side_effect=Exception("Ollama non disponible"))
+    def test_generer_argumentaire_dtr_fallback(self, mock_post):
         # En l'absence de LLM local, doit retourner le message de repli citant l'article 9
         demande = "Je voudrais me renseigner sur le permis de conduire."
         res = generer_argumentaire("DTR", demande)
@@ -64,7 +67,8 @@ class TestGenererArgumentaire(unittest.TestCase):
         res_empty = generer_argumentaire("INVALIDE", demande)
         self.assertEqual(res_empty, "Aucune direction du Ministère du Transport et de la Logistique n'est compétente pour traiter cette demande.")
 
-    def test_generer_argumentaire_cabinet_fallback(self):
+    @patch('requests.post', side_effect=Exception("Ollama non disponible"))
+    def test_generer_argumentaire_cabinet_fallback(self, mock_post):
         demande = "Demande d'audience privée avec le Ministre."
         res = generer_argumentaire("Cabinet du Ministère", demande)
         self.assertIn("Cabinet du Ministère", res)

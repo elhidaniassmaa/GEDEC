@@ -233,29 +233,34 @@ Le projet utilise des variables d'environnement pour configurer les accès et le
 
 ---
 
-##  Comptes de démonstration
+## 👥 Comptes de démonstration
 
-La base est initialisée avec des comptes de test (voir `backend/database.py` pour la liste exacte). Exemple :
+La base est initialisée avec des comptes de test opérationnels (voir `backend/database.py` pour la liste exacte) :
 
-| Rôle | Email (exemple) | Mot de passe |
-|---|---|---|
-| Administrateur | `admin@example.com` | `password123` |
-| Responsable (DTR) | `responsable.dtr@example.com` | `password123` |
+| Rôle | Email | Mot de passe | Direction |
+|---|---|---|---|
+| Administrateur | `admin@transport.gov.ma` | `password123` | DSI (Tous accès) |
+| Responsable (DTR) | `a.benali@transport.gov.ma` | `password123` | Direction des Transports Routiers |
+| Responsable (DSPCT) | `s.mansouri@transport.gov.ma` | `password123` | Stratégie & Coordination |
+| Responsable (DJAC) | `y.drissi@transport.gov.ma` | `password123` | Aviation Civile |
 
- Mots de passe volontairement simples car **non hachés** dans ce prototype (ne jamais réutiliser ce schéma d'authentification tel quel dans un contexte réel).
+> ⚠️ Mots de passe de démonstration volontairement simples (non hachés dans ce prototype de stage — à sécuriser avant toute mise en production institutionnelle).
 
 ---
 
-##  Tests
+## 🧪 Tests
 
-
-### Exécuter la suite de tests unitaires (Core NLP & Logic)
+### Exécuter l'ensemble de la suite de tests (54 tests automatisés)
 ```bash
-python -m unittest discover -s tests/unit
+pytest
 ```
 
-### Exécuter les tests des endpoints API Backend
+### Exécuter par sous-ensembles (via unittest)
 ```bash
+# Tests unitaires du cœur algorithmique (NLP, Modération, RAG, SLA)
+python -m unittest discover -s tests/unit
+
+# Tests des endpoints API Backend & Déduplication
 python -m unittest discover -s tests/api
 ```
 

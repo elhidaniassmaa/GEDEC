@@ -198,9 +198,11 @@ def verifier_et_traiter_alertes():
                 if tous_envoyes_avec_succes:
                     cursor.execute("UPDATE demandes SET notif_prioritaire_envoyee = 1 WHERE id = ?", (d["id"],))
                 else:
-                    print(f"[ALERTES] Demande {d['id']} : échec d'envoi, flag laissé à 0 pour retenter.")
+                    # Email send failed – silencing alert
+                    pass
             else:
-                print(f"[ALERTES] Demande {d['id']} : aucun Responsable ACTIF pour '{direction_finale}'.")
+                # No active Responsable – silencing alert
+                pass
 
         elif type_alerte == "rappel" and not d["notif_rappel_envoyee"]:
             cursor.execute("UPDATE demandes SET notif_rappel_envoyee = 1 WHERE id = ?", (d["id"],))

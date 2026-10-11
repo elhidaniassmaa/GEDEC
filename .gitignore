@@ -92,3 +92,7 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+~$*
+*.tmp
+data/dataset_enriched.xlsx
+data/historique_corrections.xlsx

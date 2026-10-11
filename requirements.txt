@@ -10,7 +10,7 @@ python-dotenv>=1.0.0
 requests>=2.31.0
 
 # --- Traitement de données & Calcul ---
-pandas>=2.0.0
+pandas>=2.0.0,<3.0.0
 numpy>=1.24.0
 openpyxl>=3.1.0
 
@@ -27,3 +27,15 @@ matplotlib>=3.7.0
 # --- Tests & Client HTTP ---
 httpx>=0.24.0
 pytest>=7.0.0
+
+# --- Additional dependencies for full reproducibility on any machine ---
+# SafeTensor support for loading HuggingFace models
+safetensors>=0.4.0
+# MurmurHash C extension required by sentence‑transformers / transformers
+murmurhash>=1.0.9
+# Progress‑bar utilities (used by HuggingFace Hub and tqdm wrappers)
+tqdm>=4.66.0
+# FastAPI multipart/form‑data handling (file upload endpoints)
+python-multipart>=0.0.6
+# Optional: accelerate for faster training on GPU/CPU when available
+accelerate>=0.27.0
